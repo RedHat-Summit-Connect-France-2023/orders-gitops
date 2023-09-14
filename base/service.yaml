@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: orders
+  labels:
+    app: orders
+    app.kubernetes.io/component: backstage
+    backstage.io/kubernetes-id: thegoodcorner-orders
+spec:
+  ports:
+    - name: http-8080
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: orders

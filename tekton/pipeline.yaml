@@ -1,0 +1,60 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: orders-pipeline
+  namespace: thegoodcorner-dev
+  labels:
+    type: pipeline
+    backstage.io/kubernetes-id: thegoodcorner-orders
+spec:
+  params:
+    - name: source-repo
+      description: source repo that contains the application code
+      type: string
+      default: https://github.com/ n/ordermanagement-modern
+    - name: source-branch
+      description: source branch to build from
+      default: main
+      type: string
+    - name: output-image
+      description: reference of the image that will get created
+      default: image-registry.openshift-image-registry.svc:5000/thegoodcorner-dev/orders
+      type: string
+  tasks:
+    - name: git-clone
+      params:
+        - name: url
+          value: $(params.source-repo)
+        - name: revision
+          value: $(params.source-branch)
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: source-folder
+    - name: s2i-java-fixed
+      params:
+        - name: VERSION
+          value: latest
+        - name: IMAGE
+          value: $(params.output-image)
+        - name: ENV_VARS
+          value: 
+            - MAVEN_S2I_ARTIFACT_DIRS=target/quarkus-app
+            - S2I_SOURCE_DEPLOYMENTS_FILTER=app lib quarkus quarkus-run.jar
+            - JAVA_OPTIONS=-Dquarkus.http.host=0.0.0.0
+            - AB_JOLOKIA_OFF=true
+            - JAVA_APP_JAR=/deployments/quarkus-run.jar
+        - name: PATH_CONTEXT
+          value: orders
+      runAfter:
+        - git-clone
+      taskRef:
+        kind: ClusterTask
+        name: s2i-java-fixed
+      workspaces:
+        - name: source
+          workspace: source-folder
+  workspaces:
+    - name: source-folder

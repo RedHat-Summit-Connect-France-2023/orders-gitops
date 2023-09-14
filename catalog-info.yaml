@@ -1,0 +1,37 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: orders
+  description: Orders for TheGoodCorner
+  annotations:
+    argocd/app-selector: app=orders
+    tektonci/build-namespace: thegoodcorner-dev
+    backstage.io/kubernetes-id: thegoodcorner-orders
+    backstage.io/techdocs-ref: url:https://github.com/RedHat-Summit-Connect-France-2023/ordermanagement-modern
+#    backstage.io/kubernetes-namespace: thegoodcorner-dev
+    backstage.io/source-location: url:https://github.com/RedHat-Summit-Connect-France-2023/ordermanagement-modern
+    github.com/project-slug: RedHat-Summit-Connect-France-2023/ordermanagement-modern
+    janus-idp.io/tekton-enabled : 'true'
+  links:
+    - url: https://devspaces.apps.summitconnect.sandbox2218.opentlc.com/dashboard/#/load-factory?url=https://github.com/RedHat-Summit-Connect-France-2023/ordermanagement-modern
+      title: OpenShift Dev Spaces
+      icon: web
+
+spec:
+  type: service
+  system: system
+  lifecycle: production
+  owner: dev-user
+  providesApis:
+    - "orders"
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: orders
+spec:
+  type: openapi
+  lifecycle: production
+  owner: dev-user
+  definition:
+    $text: https://github.com/RedHat-Summit-Connect-France-2023/ordermanagement-modern/blob/main/orders/swagger

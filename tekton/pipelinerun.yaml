@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: orders-pipeline-run-init
+  namespace: thegoodcorner-dev
+  # annotations:
+  #   argocd.argoproj.io/hook: PostSync
+  #   argocd.argoproj.io/hook-delete-policy: HookSucceeded
+  labels:
+    tekton.dev/pipeline: orders-pipeline
+    type: pipeline
+    backstage.io/kubernetes-id: thegoodcorner-orders
+spec:
+  params:
+    - name: source-repo
+      value: 'https://github.com/RedHat-Summit-Connect-France-2023/ordermanagement-modern.git'
+    - name: source-branch
+      value: main
+    - name: output-image
+      value: image-registry.openshift-image-registry.svc:5000/thegoodcorner-dev/orders
+  pipelineRef:
+    name: orders-pipeline
+  serviceAccountName: pipeline
+  workspaces:
+    - name: source-folder
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
