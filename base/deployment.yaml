@@ -27,3 +27,13 @@ spec:
             limits:
               memory: '500Mi'
               cpu: '300m'
+          readinessProbe:
+            httpGet:
+              path: /q/health/ready
+              port: 8080
+              scheme: HTTP
+          livenessProbe:
+            httpGet:
+              path: /q/health/live
+              port: 8080
+              scheme: HTTP
